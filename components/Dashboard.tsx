@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, LabelList
@@ -15,7 +15,18 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ settings, title, filter, customRange }) => {
-  
+  const [copiedType, setCopiedType] = useState<'code' | 'link' | null>(null);
+
+  const isGlobal = title === 'Global';
+  const refCode = `LS-${title.toUpperCase().replace(/\s+/g, '-').slice(0, 8)}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const refLink = `https://join.logisales.pro/onboard?ref=${refCode}`;
+
+  const handleCopy = (text: string, type: 'code' | 'link') => {
+    navigator.clipboard.writeText(text);
+    setCopiedType(type);
+    setTimeout(() => setCopiedType(null), 2000);
+  };
+
   // Filter and aggregate data based on selection
   const filteredData = useMemo(() => {
     if (filter === FilterType.DAILY) {
@@ -87,7 +98,61 @@ const Dashboard: React.FC<DashboardProps> = ({ settings, title, filter, customRa
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      
+      {/* REFERRAL CONTEXT SECTION (ONLY FOR INDIVIDUALS) */}
+      {!isGlobal && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-brand-blue/5 flex items-center justify-center text-brand-blue">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 uppercase tracking-tight">Referral Assets</h4>
+              <p className="text-xs text-slate-400 font-medium">Use these to onboard new merchants and earn 2nd ref commission.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ref Code</span>
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl group transition-all hover:border-slate-300">
+                <span className="text-[11px] font-black text-slate-800 font-mono tracking-tight">{refCode}</span>
+                <button 
+                  onClick={() => handleCopy(refCode, 'code')}
+                  className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-brand-blue transition-all"
+                >
+                  {copiedType === 'code' ? (
+                    <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Referral Link</span>
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl group transition-all hover:border-slate-300">
+                <span className="text-[11px] font-bold text-slate-500 truncate max-w-[150px]">{refLink}</span>
+                <button 
+                  onClick={() => handleCopy(refLink, 'link')}
+                  className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-brand-blue transition-all"
+                >
+                  {copiedType === 'link' ? (
+                    <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
           <div>
